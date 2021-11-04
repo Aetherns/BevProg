@@ -2,7 +2,7 @@
 
 //------------------------------------------------------------------------------
 
-class Token{
+class Token{  //Javítva: lass Token ==> class Token
 public:
     char kind;        // what kind of token
     double value;     // for numbers: a value 
@@ -44,7 +44,7 @@ void Token_stream::putback(Token t)
 
 //------------------------------------------------------------------------------
 
-Token get()
+Token Token_stream::get() //Javítva: Token get() ==> Token Token_stream::get()
 {
     if (full) {       // do we already have a Token ready?
         // remove token from buffer
@@ -56,13 +56,13 @@ Token get()
     cin >> ch;    // note that >> skips whitespace (space, newline, tab, etc.)
 
     switch (ch) {
-    case ';':    // for "print"
-    case 'q':    // for "quit"
+    case '=':    // for "print" // changed from ; to =
+    case 'x':    // for "quit" // changed from q to x
     case '(': case ')': case '+': case '-': case '*': case '/':
         return Token(ch);        // let each character represent itself
     case '.':
     case '0': case '1': case '2': case '3': case '4':
-    case '5': case '6': case '7': case '9':
+    case '5': case '6': case '7': case '8': case '9':
     {
         cin.putback(ch);         // put digit back into the input stream
         double val;
@@ -93,7 +93,7 @@ double primary()
     {
         double d = expression();
         t = ts.get();
-        if (t.kind != ')') error("')' expected");
+        if (t.kind != ')') error("')' expected"); //Javítva: hiányzott a " karakter a string végéről
             return d;
     }
     case '8':            // we use '8' to represent a number
@@ -113,6 +113,7 @@ double term()
         case '*':
             left *= primary();
             t = ts.get();
+            break; //javítva: break hiányzott teljesen
         case '/':
         {
             double d = primary();
@@ -131,7 +132,7 @@ double term()
 // deal with + and -
 double expression()
 {
-    double left = term();      // read and evaluate a Term
+    double left = term();      // javítva: double left = term(; ==> double left = term();
     Token t = ts.get();        // get the next token from token stream
     while (true) {
         switch (t.kind) {
@@ -140,7 +141,8 @@ double expression()
             t = ts.get();
             break;
         case '-':
-            left += term();    // evaluate Term and subtract
+                                //javítva: left += term(); ==> left -= term();
+            left -= term();    // evaluate Term and subtract
             t = ts.get();
             break;
         default:
@@ -153,14 +155,24 @@ double expression()
 int main()
 try
 {
+    
+    cout << "Welcome to our simple calculator.\n"
+         << "Please enter expressions using floating-point numbers.\n"
+         << "+, *, -, /, and () are the supported operators.\n"
+         << "Expressions have to end with a =. Enter x to quit.\n";
+
+    //hiba: a val nem volt deklarálva
+    double val = 0;
+
     while (cin) {
         Token t = ts.get();
-        if (t.kind == 'q') break; // 'q' for quit
-        if (t.kind == ';')        // ';' for "print now"
+        if (t.kind == 'x') break; // 'q' for quit
+        if (t.kind == '=')        // ';' for "print now"
             cout << "=" << val << '\n';
-        else
+        else {
             ts.putback(t);
-        val = expression();
+            val = expression();
+            }
     }
     keep_window_open();
 }
@@ -174,4 +186,4 @@ catch (...) {
     keep_window_open();
     return 2;
 }
-
+//------------------------------------------------------------------------------
